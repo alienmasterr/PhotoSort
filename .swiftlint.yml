@@ -1,7 +1,25 @@
-#
-//  .swiftlint.yml
-//  PhotoSort
-//
-//  Created by alina on 21.11.2026.
-//
+included:
+  - Sources
+  - Tests
 
+excluded:
+  - .build
+  - Package.swift
+
+opt_in_rules:
+  - empty_count
+  - explicit_init
+  - first_where
+  - sorted_imports
+
+line_length:
+  warning: 120
+  error: 150
+
+identifier_name:
+  min_length:
+    warning: 2
+  excluded:
+    - id
+    - x
+    - y
