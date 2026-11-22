@@ -21,8 +21,7 @@ struct ColorAnalyzer {
     }
 
     func analyze(_ image: CGImage) -> ColorAnalysis? {
-        let width = 64
-        let height = 64
+        let width = 64; let height = 64
         var pixels = [UInt8](repeating: 0, count: width * height * 4)
         let success = pixels.withUnsafeMutableBytes { buffer -> Bool in
             let info = CGBitmapInfo.byteOrder32Big.union(

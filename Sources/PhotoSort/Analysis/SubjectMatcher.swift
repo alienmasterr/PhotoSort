@@ -7,16 +7,35 @@
 
 import Vision
 
-func printSupportedLabels() {
-    do {
-        let request = VNClassifyImageRequest()
-        request.revision = VNClassifyImageRequestRevision1
+struct VisionLabel: Hashable, Sendable {
+    let name: String
 
-        let labels = try request.supportedIdentifiers()
-        for label in labels {
-            print(label)
+    init?(_ name: String, availableLabels: Set<String>) {
+        guard availableLabels.contains(name) else {
+            return nil
         }
-    } catch {
-        print("Error fetching supported identifiers: \(error)")
+        self.name = name
+    }
+}
+
+struct SubjectMatcher {
+
+    private let reliableConfidenceLevel: Float
+
+    init(
+        reliableConfidenceLevel: Float = 0.60
+    ) {
+        self.reliableConfidenceLevel = reliableConfidenceLevel
+    }
+
+    func matches(
+        _ observations: [VNClassificationObservation],
+        label: VisionLabel
+    ) -> Bool {
+        observations.contains {
+            $0.identifier == label.name
+                && $0.confidence >= reliableConfidenceLevel
+        }
+
     }
 }
