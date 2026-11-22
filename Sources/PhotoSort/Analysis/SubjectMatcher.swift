@@ -8,7 +8,7 @@
 import Vision
 
 struct VisionLabel: Hashable, Sendable {
-    let name: String
+    public let name: String
 
     init?(_ name: String, availableLabels: Set<String>) {
         guard availableLabels.contains(name) else {
@@ -18,18 +18,18 @@ struct VisionLabel: Hashable, Sendable {
     }
 }
 
-struct SubjectMatcher {
+struct SubjectMatcher: Sendable {
 
     private let reliableConfidenceLevel: Float
 
     init(
-        reliableConfidenceLevel: Float = 0.60
+        reliableConfidenceLevel: Float = 0.10
     ) {
         self.reliableConfidenceLevel = reliableConfidenceLevel
     }
 
     func matches(
-        _ observations: [VNClassificationObservation],
+        _ observations: [ClassifiedLabel],
         label: VisionLabel
     ) -> Bool {
         observations.contains {

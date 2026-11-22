@@ -5,13 +5,14 @@
 //  Created by alina on 22.11.2026.
 //
 
+/// color variants
 public enum NamedColor: String, Sendable, CaseIterable {
     case red
     case orange
     case yellow
     case green
-    case lightBlue
-    case darkBlue
+    case teal
+    case blue
     case purple
     case pink
     case brown

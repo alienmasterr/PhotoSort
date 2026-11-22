@@ -5,7 +5,6 @@
 //  Created by alina on 21.11.2026.
 //
 
-// поняття не маю, як працює теорія кольору, тому в роботі з кольором використовувала допомогу ші
 import CoreGraphics
 
 struct ColorAnalysis: Sendable {
@@ -21,7 +20,18 @@ struct ColorAnalyzer {
     }
 
     func analyze(_ image: CGImage) -> ColorAnalysis? {
-        let width = 64; let height = 64
+        guard let pixels = extractPixels(from: image, width: 64, height: 64)
+        else {
+            return nil
+        }
+        return dominantColor(from: pixels)
+    }
+
+    private func extractPixels(
+        from image: CGImage,
+        width: Int,
+        height: Int
+    ) -> [UInt8]? {
         var pixels = [UInt8](repeating: 0, count: width * height * 4)
         let success = pixels.withUnsafeMutableBytes { buffer -> Bool in
             let info = CGBitmapInfo.byteOrder32Big.union(
@@ -29,7 +39,6 @@ struct ColorAnalyzer {
                     rawValue: CGImageAlphaInfo.premultipliedLast.rawValue
                 )
             )
-
             guard
                 let context = CGContext(
                     data: buffer.baseAddress,
@@ -43,7 +52,6 @@ struct ColorAnalyzer {
             else {
                 return false
             }
-
             context.interpolationQuality = .high
             context.draw(
                 image,
@@ -51,25 +59,22 @@ struct ColorAnalyzer {
             )
             return true
         }
+        return success ? pixels : nil
+    }
 
-        guard success else { return nil }
-
+    private func dominantColor(from pixels: [UInt8]) -> ColorAnalysis? {
         var colors: [NamedColor: Double] = [:]
         var totalWeight = 0.0
-
-        for i in stride(from: 0, to: pixels.count, by: 4) {
-            let alpha = Double(pixels[i + 3]) / 255
+        for pixel in stride(from: 0, to: pixels.count, by: 4) {
+            let alpha = Double(pixels[pixel + 3]) / 255
             if alpha == 0 { continue }
-
-            let red = min(Double(pixels[i]) / 255 / alpha, 1)
-            let green = min(Double(pixels[i + 1]) / 255 / alpha, 1)
-            let blue = min(Double(pixels[i + 2]) / 255 / alpha, 1)
-
+            let red = min(Double(pixels[pixel]) / 255 / alpha, 1)
+            let green = min(Double(pixels[pixel + 1]) / 255 / alpha, 1)
+            let blue = min(Double(pixels[pixel + 2]) / 255 / alpha, 1)
             let color = colorForPixel(red: red, green: green, blue: blue)
             let saturation = rgbToHSB(red: red, green: green, blue: blue)
                 .saturation
             let weight = max(saturation, 0.15) * alpha
-
             colors[color, default: 0] += weight
             totalWeight += weight
         }
@@ -84,13 +89,17 @@ struct ColorAnalyzer {
         if share < minimumColorShare { return nil }
         return ColorAnalysis(color: dominant.key, share: share)
     }
+    private struct HSB {
+        let hue: Double
+        let saturation: Double
+        let brightness: Double
+    }
 
     private func rgbToHSB(
         red: Double,
         green: Double,
         blue: Double
-    ) -> (hue: Double, saturation: Double, brightness: Double) {
-
+    ) -> HSB {
         let maxValue = max(red, green, blue)
         let minValue = min(red, green, blue)
         let diff = maxValue - minValue
@@ -111,7 +120,7 @@ struct ColorAnalyzer {
             hue /= 6
         }
 
-        return (hue, saturation, brightness)
+        return HSB(hue: hue, saturation: saturation, brightness: brightness)
     }
 
     private func colorForPixel(
@@ -129,8 +138,8 @@ struct ColorAnalyzer {
         if hsb.hue < 0.11 { return hsb.brightness < 0.55 ? .brown : .orange }
         if hsb.hue < 0.17 { return .yellow }
         if hsb.hue < 0.38 { return .green }
-        if hsb.hue < 0.48 { return .lightBlue }
-        if hsb.hue < 0.67 { return .darkBlue }
+        if hsb.hue < 0.48 { return .teal }
+        if hsb.hue < 0.67 { return .blue }
         if hsb.hue < 0.80 { return .purple }
         return .pink
     }
