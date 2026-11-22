@@ -10,13 +10,13 @@ import Foundation
 import Photos
 import UIKit
 
-enum PhotoLibraryAccess {
+public enum PhotoLibraryAccess {
     case full
     case limited
     case forbidden
 }
 
-enum PhotoLibraryErrors: LocalizedError {
+public enum PhotoLibraryErrors: LocalizedError {
     case noPhotos
     case noAccess
     case albumNotCreated
@@ -42,7 +42,7 @@ enum PhotoLibraryErrors: LocalizedError {
 
 }
 
-protocol PhotoLibraryProtocol {
+public protocol PhotoLibraryProtocol {
     func requestAccess() async -> PhotoLibraryAccess
     func fetchAssets(in period: DateInterval) async throws -> [String]
     func thumbnail(for identifier: String) async throws -> CGImage
@@ -52,8 +52,11 @@ protocol PhotoLibraryProtocol {
         async throws
 }
 
-struct PhotoLibrary: PhotoLibraryProtocol {
-    func requestAccess() async -> PhotoLibraryAccess {
+public struct PhotoLibrary: PhotoLibraryProtocol {
+
+    public init() {}
+
+    public func requestAccess() async -> PhotoLibraryAccess {
         let authorizationStatus = await PHPhotoLibrary.requestAuthorization(
             for: .readWrite
         )
@@ -67,7 +70,7 @@ struct PhotoLibrary: PhotoLibraryProtocol {
 
     }
 
-    func fetchAssets(in period: DateInterval) async throws -> [String] {
+    public func fetchAssets(in period: DateInterval) async throws -> [String] {
         let options = PHFetchOptions()
         options.predicate = NSPredicate(
             format: "creationDate >= %@ AND creationDate <= %@",
@@ -86,7 +89,7 @@ struct PhotoLibrary: PhotoLibraryProtocol {
         return localIdentifiers
     }
 
-    func thumbnail(for identifier: String) async throws -> CGImage {
+    public func thumbnail(for identifier: String) async throws -> CGImage {
         let found = PHAsset.fetchAssets(
             withLocalIdentifiers: [identifier],
             options: nil
@@ -127,7 +130,7 @@ struct PhotoLibrary: PhotoLibraryProtocol {
 
     }
 
-    func findAlbum(named name: String) -> String? {
+    public func findAlbum(named name: String) -> String? {
         let foundAlbums = PHAssetCollection.fetchAssetCollections(
             with: .album,
             subtype: .any,
@@ -145,7 +148,7 @@ struct PhotoLibrary: PhotoLibraryProtocol {
         return foundAlbum
     }
 
-    func createAlbum(named name: String) async throws -> String {
+    public func createAlbum(named name: String) async throws -> String {
         var albumIdentifier: String?
 
         try await PHPhotoLibrary.shared().performChanges {
@@ -165,7 +168,7 @@ struct PhotoLibrary: PhotoLibraryProtocol {
         return albumIdentifier
     }
 
-    func addAssets(_ identifiers: [String], to albumIdentifier: String)
+    public func addAssets(_ identifiers: [String], to albumIdentifier: String)
         async throws
     {
         guard
