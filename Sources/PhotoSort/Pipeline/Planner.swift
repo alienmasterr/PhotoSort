@@ -10,7 +10,7 @@ import Foundation
 
 struct Planner: Sendable {
     let library: PhotoLibraryProtocol
-    let classifier: ImageClassifier
+    let classifier: any ImageClassifierProtocol
     let colorAnalyzer: ColorAnalyzer
     let subjectMatcher: SubjectMatcher
     let naming: AlbumNaming
