@@ -5,8 +5,6 @@
 //  Created by alina on 21.11.2026.
 //
 
-import Vision
-
 struct VisionLabel: Hashable, Sendable {
     public let name: String
 
@@ -23,7 +21,7 @@ struct SubjectMatcher: Sendable {
     private let reliableConfidenceLevel: Float
 
     init(
-        reliableConfidenceLevel: Float = 0.10
+        reliableConfidenceLevel: Float = 0.60
     ) {
         self.reliableConfidenceLevel = reliableConfidenceLevel
     }

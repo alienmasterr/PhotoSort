@@ -62,7 +62,7 @@ public struct SortRequest: Sendable {
 
     /// Creates a request.
     ///
-    /// - Throws: ``PhotoSortError/invalidRequest(reason:)`` if the period is empty,
+    /// - Throws: ``SortError/invalidRequest(reason:)`` if the period is empty,
     ///   neither `subject` nor `colors` is given, the color set is empty,
     ///   or the subject label is blank.
     public init(

@@ -38,15 +38,33 @@ struct Planner: Sendable {
         let whatSortBy = try resolveSortByWhat(from: request)
         let assetIdentifiers = try await fetchIdentifiers(in: request.period)
 
-        progress?(SortProgress(phase: .fetching, completed: 0, total: assetIdentifiers.count))
+        progress?(
+            SortProgress(
+                phase: .fetching,
+                completed: 0,
+                total: assetIdentifiers.count
+            )
+        )
 
-        let sum = try await scanPhotos(assetIdentifiers: assetIdentifiers, sortByWhat: whatSortBy, progress: progress)
+        let sum = try await scanPhotos(
+            assetIdentifiers: assetIdentifiers,
+            sortByWhat: whatSortBy,
+            progress: progress
+        )
 
-        let albums = try buildAlbums(summary: sum, assetIdentifiers: assetIdentifiers, period: request.period)
+        let albums = try buildAlbums(
+            summary: sum,
+            assetIdentifiers: assetIdentifiers,
+            period: request.period
+        )
 
-        return SortPlan(request: request, albums: albums,
-        scannedCount: sum.scannedCount,
-        skippedCount: sum.failedPhotos.count, isLimitedAccess: isLimitedAccess)
+        return SortPlan(
+            request: request,
+            albums: albums,
+            scannedCount: sum.scannedCount,
+            skippedCount: sum.failedPhotos.count,
+            isLimitedAccess: isLimitedAccess
+        )
     }
 
     private func scanPhotos(
@@ -72,13 +90,21 @@ struct Planner: Sendable {
                     }
                 }
 
-            for _ in 0..<min(maxConcurrency, assetIdentifiers.count) {enqueueNext(&group)}
+            for _ in 0..<min(maxConcurrency, assetIdentifiers.count) {
+                enqueueNext(&group)
+            }
 
             var completed = 0
             while let outcome = try await group.next() {
                 completed += 1
                 summary.record(outcome)
-                progress?(SortProgress(phase: .analyzing, completed: completed, total: assetIdentifiers.count))
+                progress?(
+                    SortProgress(
+                        phase: .analyzing,
+                        completed: completed,
+                        total: assetIdentifiers.count
+                    )
+                )
                 enqueueNext(&group)
             }
         }
@@ -93,7 +119,9 @@ struct Planner: Sendable {
     ) throws -> [SortPlan.Album] {
         if summary.scannedCount == 0,
             let error = summary.failedPhotos.lazy.compactMap({ outcome -> (any Error)? in
-                if case .failed(_, .classifying, let error) = outcome { return error }
+                if case .failed(_, .classifying, let error) = outcome {
+                    return error
+                }
                 return nil
             }).first {
             throw SortError.classificationUnavailable(underlying: error)
@@ -105,7 +133,9 @@ struct Planner: Sendable {
         )
         .mapValues { $0.map(\.id) }
         let originalOrder = Dictionary(
-            uniqueKeysWithValues: assetIdentifiers.enumerated().map { ($0.element, $0.offset) }
+            uniqueKeysWithValues: assetIdentifiers.enumerated().map {
+                ($0.element, $0.offset)
+            }
         )
 
         return
@@ -170,46 +200,46 @@ struct Planner: Sendable {
         return assetIdentifiers
     }
 
-    private func buildAlbums(
-        matchedPhotos: [(id: String, key: AlbumName)],
-        failedPhotos: [PhotoOutcome],
-        scannedCount: Int,
-        assetIdentifiers: [String],
-        period: DateInterval
-    ) throws -> [SortPlan.Album] {
-        if scannedCount == 0,
-            let error = failedPhotos.lazy.compactMap({ outcome -> (any Error)? in
-                if case .failed(_, .classifying, let error) = outcome {
-                    return error
-                }
-                return nil
-            }).first {
-            throw SortError.classificationUnavailable(underlying: error)
-        }
-
-        let photosByAlbum = Dictionary(grouping: matchedPhotos, by: \.key)
-            .mapValues { $0.map(\.id) }
-        let originalOrder = Dictionary(
-            uniqueKeysWithValues: assetIdentifiers.enumerated().map {
-                ($0.element, $0.offset)
-            }
-        )
-
-        return
-            photosByAlbum
-            .map { key, identifiers in
-                let sortedIdentifiers = identifiers.sorted {
-                    (originalOrder[$0] ?? .max) < (originalOrder[$1] ?? .max)
-                }
-                let title = naming.finalName(for: key, period: period)
-                return SortPlan.Album(
-                    title: title,
-                    albumName: key,
-                    assetIdentifiers: sortedIdentifiers
-                )
-            }
-            .sorted { $0.title < $1.title }
-    }
+    //    private func buildAlbums(
+    //        matchedPhotos: [(id: String, key: AlbumName)],
+    //        failedPhotos: [PhotoOutcome],
+    //        scannedCount: Int,
+    //        assetIdentifiers: [String],
+    //        period: DateInterval
+    //    ) throws -> [SortPlan.Album] {
+    //        if scannedCount == 0,
+    //            let error = failedPhotos.lazy.compactMap({ outcome -> (any Error)? in
+    //                if case .failed(_, .classifying, let error) = outcome {
+    //                    return error
+    //                }
+    //                return nil
+    //            }).first {
+    //            throw SortError.classificationUnavailable(underlying: error)
+    //        }
+    //
+    //        let photosByAlbum = Dictionary(grouping: matchedPhotos, by: \.key)
+    //            .mapValues { $0.map(\.id) }
+    //        let originalOrder = Dictionary(
+    //            uniqueKeysWithValues: assetIdentifiers.enumerated().map {
+    //                ($0.element, $0.offset)
+    //            }
+    //        )
+    //
+    //        return
+    //            photosByAlbum
+    //            .map { key, identifiers in
+    //                let sortedIdentifiers = identifiers.sorted {
+    //                    (originalOrder[$0] ?? .max) < (originalOrder[$1] ?? .max)
+    //                }
+    //                let title = naming.finalName(for: key, period: period)
+    //                return SortPlan.Album(
+    //                    title: title,
+    //                    albumName: key,
+    //                    assetIdentifiers: sortedIdentifiers
+    //                )
+    //            }
+    //            .sorted { $0.title < $1.title }
+    //    }
 
     private func resolveSortByWhat(
         from request: SortRequest
@@ -276,7 +306,11 @@ struct Planner: Sendable {
             } catch is CancellationError {
                 throw CancellationError()
             } catch {
-                return .failed(id: identifier, stage: .classifying, error: error)
+                return .failed(
+                    id: identifier,
+                    stage: .classifying,
+                    error: error
+                )
             }
         }
         let name = AlbumName(

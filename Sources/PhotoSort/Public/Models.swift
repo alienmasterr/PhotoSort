@@ -15,7 +15,7 @@ public struct SortPlan: Sendable {
         public var photoCount: Int { assetIdentifiers.count }
 
         let albumName: AlbumName
-        let assetIdentifiers: [String]
+        public let assetIdentifiers: [String]
     }
 
     /// The request this plan was made for.

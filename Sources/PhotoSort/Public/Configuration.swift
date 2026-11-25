@@ -21,7 +21,7 @@ extension PhotoSorter {
         public init(
             maxConcurrency: Int = 4,
             minimumConfidence: Float = 0.6,
-            minimumColorShare: Double = 0.4,
+            minimumColorShare: Double = 0.6,
             albumNamePrefix: String = "PhotoSort"
         ) {
             self.maxConcurrency = max(1, maxConcurrency)

@@ -162,6 +162,7 @@ struct MockClassifier: ImageClassifierProtocol, Sendable {
     var classifyError: (any Error)?
     var failingWidth: Int?
     let calls = LockedBox(0)
+    var failFirstCall = false
 
     func supportedLabels() throws -> Set<String> {
         if let supportedError { throw supportedError }
@@ -169,9 +170,23 @@ struct MockClassifier: ImageClassifierProtocol, Sendable {
     }
 
     func classify(_ image: CGImage) async throws -> [ClassifiedLabel] {
-        calls.withValue { $0 += 1 }
-        if let classifyError { throw classifyError }
-        if image.width == failingWidth { throw TestError() }
+        let callNumber = calls.withValue {
+            $0 += 1
+            return $0
+        }
+
+        if let classifyError {
+            throw classifyError
+        }
+
+        if failFirstCall && callNumber == 1 {
+            throw TestError()
+        }
+
+        if image.width == failingWidth {
+            throw TestError()
+        }
+
         switch image.width {
         case TestImage.catWidth:
             return [ClassifiedLabel(identifier: "cat", confidence: 0.95)]

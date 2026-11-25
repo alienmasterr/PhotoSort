@@ -146,7 +146,7 @@ struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
     func findAlbum(named name: String) -> String? {
         let foundAlbums = PHAssetCollection.fetchAssetCollections(
             with: .album,
-            subtype: .any,
+            subtype: .albumRegular,
             options: nil
         )
 

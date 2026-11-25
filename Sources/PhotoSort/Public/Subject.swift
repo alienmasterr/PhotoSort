@@ -5,6 +5,8 @@
 //  Created by alina on 22.11.2026.
 //
 
+import Foundation
+
 public struct Subject: Sendable, Hashable {
     public let label: String
 
