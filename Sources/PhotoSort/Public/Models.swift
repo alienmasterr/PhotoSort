@@ -15,6 +15,8 @@ public struct SortPlan: Sendable {
         public var photoCount: Int { assetIdentifiers.count }
 
         let albumName: AlbumName
+        
+        /// The identifiers of photos assigned to this album.
         public let assetIdentifiers: [String]
     }
 

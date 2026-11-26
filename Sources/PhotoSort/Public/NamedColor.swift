@@ -5,7 +5,7 @@
 //  Created by alina on 22.11.2026.
 //
 
-/// color variants
+/// Supported color variants.
 public enum NamedColor: String, Sendable, CaseIterable {
     case red
     case orange

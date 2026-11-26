@@ -6,6 +6,8 @@
 //
 
 struct VisionLabel: Hashable, Sendable {
+    
+    /// The recognized label name.
     public let name: String
 
     init?(_ name: String, availableLabels: Set<String>) {

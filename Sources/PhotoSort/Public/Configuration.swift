@@ -5,6 +5,7 @@
 //  Created by alina on 22.11.2026.
 //
 
+/// Eddition to PhotoSorter
 extension PhotoSorter {
     /// Settings that tune how photos are analyzed.
     public struct Configuration: Sendable {

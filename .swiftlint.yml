@@ -1,6 +1,7 @@
 included:
   - Sources
   - Tests
+  - Examples
 
 excluded:
   - .build
@@ -11,6 +12,10 @@ opt_in_rules:
   - explicit_init
   - first_where
   - sorted_imports
+  - missing_docs
+
+missing_docs:
+  warning: [open, public]
 
 line_length:
   warning: 120

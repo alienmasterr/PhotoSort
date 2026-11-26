@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Errors of sorting process
 public enum SortError: LocalizedError, Sendable {
     /// The request is not valid, for example the period is empty.
     case invalidRequest(reason: String)
@@ -21,6 +22,7 @@ public enum SortError: LocalizedError, Sendable {
     /// Reading from or changing the photo library failed.
     case libraryChangeFailed(underlying: any Error)
 
+    /// Error descriptions for user in text
     public var errorDescription: String? {
         switch self {
         case .invalidRequest(let reason):
