@@ -91,11 +91,9 @@ struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
             format: "(mediaSubtypes & %d) == 0",
             PHAssetMediaSubtype.photoScreenshot.rawValue
         )
-        options.predicate = NSCompoundPredicate(
-            andPredicateWithSubpredicates: [
-                datePredicate, noScreenshotsPredicate,
-            ]
-        )
+        options.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            datePredicate, noScreenshotsPredicate
+        ])
         let assets = PHAsset.fetchAssets(with: .image, options: options)
 
         var localIdentifiers = [String]()
@@ -134,8 +132,7 @@ struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
                     return
                 }
                 if let isDegraded = info?[PHImageResultIsDegradedKey] as? Bool,
-                    isDegraded
-                {
+                    isDegraded {
                     return
                 }
                 guard let cgImage = image?.cgImage else {
@@ -189,8 +186,7 @@ struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
     }
 
     func addAssets(_ identifiers: [String], to albumIdentifier: String)
-        async throws
-    {
+        async throws {
         guard
             let foundAlbum = PHAssetCollection.fetchAssetCollections(
                 withLocalIdentifiers: [albumIdentifier],
@@ -237,8 +233,7 @@ struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
     }
 
     func assetIdentifiers(inAlbum albumIdentifier: String) async throws
-        -> [String]
-    {
+        -> [String] {
         guard
             let album = PHAssetCollection.fetchAssetCollections(
                 withLocalIdentifiers: [albumIdentifier],
@@ -252,5 +247,4 @@ struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
         }
         return identifiers
     }
-
 }

@@ -200,47 +200,6 @@ struct Planner: Sendable {
         return assetIdentifiers
     }
 
-    //    private func buildAlbums(
-    //        matchedPhotos: [(id: String, key: AlbumName)],
-    //        failedPhotos: [PhotoOutcome],
-    //        scannedCount: Int,
-    //        assetIdentifiers: [String],
-    //        period: DateInterval
-    //    ) throws -> [SortPlan.Album] {
-    //        if scannedCount == 0,
-    //            let error = failedPhotos.lazy.compactMap({ outcome -> (any Error)? in
-    //                if case .failed(_, .classifying, let error) = outcome {
-    //                    return error
-    //                }
-    //                return nil
-    //            }).first {
-    //            throw SortError.classificationUnavailable(underlying: error)
-    //        }
-    //
-    //        let photosByAlbum = Dictionary(grouping: matchedPhotos, by: \.key)
-    //            .mapValues { $0.map(\.id) }
-    //        let originalOrder = Dictionary(
-    //            uniqueKeysWithValues: assetIdentifiers.enumerated().map {
-    //                ($0.element, $0.offset)
-    //            }
-    //        )
-    //
-    //        return
-    //            photosByAlbum
-    //            .map { key, identifiers in
-    //                let sortedIdentifiers = identifiers.sorted {
-    //                    (originalOrder[$0] ?? .max) < (originalOrder[$1] ?? .max)
-    //                }
-    //                let title = naming.finalName(for: key, period: period)
-    //                return SortPlan.Album(
-    //                    title: title,
-    //                    albumName: key,
-    //                    assetIdentifiers: sortedIdentifiers
-    //                )
-    //            }
-    //            .sorted { $0.title < $1.title }
-    //    }
-
     private func resolveSortByWhat(
         from request: SortRequest
     ) throws -> SortBy {
