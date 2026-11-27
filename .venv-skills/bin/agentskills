@@ -1,0 +1,8 @@
+#!/bin/sh
+'''exec' "/Users/alina/Documents/Alina/education/kma/year4/term1/ios frameworks/PhotoSort/.venv-skills/bin/python" "$0" "$@"
+' '''
+import sys
+from skills_ref.cli import main
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(main())

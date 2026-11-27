@@ -23,11 +23,6 @@ enum ImageClassiffierError: LocalizedError {
 struct ClassifiedLabel: Sendable, Hashable {
     let identifier: String
     let confidence: Float
-
-//    init(identifier: String, confidence: Float) {
-//        self.identifier = identifier
-//        self.confidence = confidence
-//    }
 }
 
 protocol ImageClassifierProtocol: Sendable {
@@ -37,7 +32,6 @@ protocol ImageClassifierProtocol: Sendable {
 
 struct ImageClassifier: Sendable, ImageClassifierProtocol {
     private static let classifierConf: Float = 0.1
-    // init() {}
     func classify(_ image: CGImage) async throws -> [ClassifiedLabel] {
         let request = VNClassifyImageRequest()
         let handler = VNImageRequestHandler(cgImage: image, options: [:])

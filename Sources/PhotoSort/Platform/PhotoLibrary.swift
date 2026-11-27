@@ -57,9 +57,6 @@ protocol PhotoLibraryProtocol: Sendable {
 }
 
 struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
-
-    // init() {}
-
     func requestAccess() async -> PhotoLibraryAccess {
         let authorizationStatus = await PHPhotoLibrary.requestAuthorization(
             for: .readWrite
