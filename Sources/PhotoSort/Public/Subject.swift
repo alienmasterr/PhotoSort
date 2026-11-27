@@ -9,7 +9,6 @@ import Foundation
 
 /// A subject used to classify and sort photos.
 public struct Subject: Sendable, Hashable {
-    
     /// The normalized subject label.
     public let label: String
 
@@ -20,7 +19,6 @@ public struct Subject: Sendable, Hashable {
 
     /// A subject representing cats.
     public static let cats = Subject(label: "cat")
-    
     /// A subject representing dogs.
     public static let dogs = Subject(label: "dog")
 }

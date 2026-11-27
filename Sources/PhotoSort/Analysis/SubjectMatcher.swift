@@ -6,7 +6,6 @@
 //
 
 struct VisionLabel: Hashable, Sendable {
-    
     /// The recognized label name.
     public let name: String
 

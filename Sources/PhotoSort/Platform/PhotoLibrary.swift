@@ -76,6 +76,12 @@ struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
 
     func fetchAssets(in period: DateInterval) async throws -> [String] {
         let options = PHFetchOptions()
+        options.sortDescriptors = [
+            NSSortDescriptor(
+                key: "creationDate",
+                ascending: true
+            )
+        ]
         let datePredicate = NSPredicate(
             format: "creationDate >= %@ AND creationDate <= %@",
             period.start as NSDate,
@@ -87,7 +93,7 @@ struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
         )
         options.predicate = NSCompoundPredicate(
             andPredicateWithSubpredicates: [
-                datePredicate, noScreenshotsPredicate
+                datePredicate, noScreenshotsPredicate,
             ]
         )
         let assets = PHAsset.fetchAssets(with: .image, options: options)
@@ -128,7 +134,8 @@ struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
                     return
                 }
                 if let isDegraded = info?[PHImageResultIsDegradedKey] as? Bool,
-                    isDegraded {
+                    isDegraded
+                {
                     return
                 }
                 guard let cgImage = image?.cgImage else {
@@ -182,29 +189,56 @@ struct PhotoLibrary: PhotoLibraryProtocol, Sendable {
     }
 
     func addAssets(_ identifiers: [String], to albumIdentifier: String)
-        async throws {
+        async throws
+    {
         guard
             let foundAlbum = PHAssetCollection.fetchAssetCollections(
                 withLocalIdentifiers: [albumIdentifier],
                 options: nil
             ).firstObject
         else { throw PhotoLibraryErrors.albumNotFound }
+
         let assets = PHAsset.fetchAssets(
-            withLocalIdentifiers: identifiers,
+            in: foundAlbum,
             options: nil
         )
+
+        var nowIdentifiers = [String]()
+        assets.enumerateObjects { asset, _, _ in
+            nowIdentifiers.append(asset.localIdentifier)
+        }
+        let allIdentifiers = Array(Set(nowIdentifiers).union(identifiers))
+
+        let options = PHFetchOptions()
+        options.sortDescriptors = [
+            NSSortDescriptor(
+                key: "creationDate",
+                ascending: true
+            )
+        ]
+        let sortedAssets = PHAsset.fetchAssets(
+            withLocalIdentifiers: allIdentifiers,
+            options: options
+        )
+
         try await PHPhotoLibrary.shared().performChanges {
             let changeRequest = PHAssetCollectionChangeRequest(
-                for: foundAlbum
+                for: foundAlbum,
+                assets: assets
             )
+            changeRequest?.removeAssets(assets)
 
-            changeRequest?.addAssets(assets)
+            changeRequest?.insertAssets(
+                sortedAssets,
+                at: IndexSet(integersIn: 0..<sortedAssets.count)
+            )
         }
 
     }
 
     func assetIdentifiers(inAlbum albumIdentifier: String) async throws
-        -> [String] {
+        -> [String]
+    {
         guard
             let album = PHAssetCollection.fetchAssetCollections(
                 withLocalIdentifiers: [albumIdentifier],
